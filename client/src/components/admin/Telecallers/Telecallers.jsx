@@ -1,22 +1,22 @@
-import React from 'react'
-import Sidebar from '../../../utils/sidebar'
-import Toolmodal from '../Dashboard/popups/Toolmodal'
-import Addpopup from './popup/addpopup'
-import { useState, useEffect } from 'react'
-import decodeToken from '../../../utils/jwtdecode'
-import axios from 'axios'
+import React from "react";
+import Sidebar from "../../../utils/sidebar";
+import Toolmodal from "../Dashboard/popups/Toolmodal";
+import Addpopup from "./popup/addpopup";
+import { useState, useEffect } from "react";
+import decodeToken from "../../../utils/jwtdecode";
+import axios from "axios";
 import HashLoader from "react-spinners/HashLoader";
 import useThemeStore from "../../store/themestore";
 
 const Telecallers = () => {
   const [opentools, setopentools] = useState(false);
   const [popup, setispopupopen] = useState(false);
-  const[loading1,setloading1]=useState(false);
+  const [loading1, setloading1] = useState(false);
   const [adminid, setadminid] = useState("");
   const [telecallerdata, settelecallerdata] = useState([]);
   const [selectedtelecaller, setselectedtelecaller] = useState(null);
-  const[leads,setassignedleads]=useState([]);
-  const [assignedleadmodel,setassignedleadmodel]=useState(false)
+  const [leads, setassignedleads] = useState([]);
+  const [assignedleadmodel, setassignedleadmodel] = useState(false);
   const options = ["Option 1", "Option 2", "Option 3"];
   const [searchQuery, setSearchQuery] = useState("");
   const { isDarkTheme } = useThemeStore();
@@ -30,29 +30,29 @@ const Telecallers = () => {
         const adminId = tokenvalidation.adminId;
         setadminid(adminId);
         const databaseName = tokenvalidation.databaseName;
-  
+
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/admin/getalltelecaller`,
           { headers: { database: databaseName } }
         );
-  
+
         setloading1(false);
-        
+
         if (response.status === 200 && response.data.alltelecallers) {
           settelecallerdata(response.data.alltelecallers);
         } else {
-          settelecallerdata([]); 
+          settelecallerdata([]);
         }
       } catch (error) {
         setloading1(false);
         console.error("Error fetching telecallers:", error);
-        settelecallerdata([]);  
+        settelecallerdata([]);
       }
     };
-  
+
     fetchalltelecallers();
   }, []);
-  
+
   const openmodel = () => {
     setopentools(!opentools);
   };
@@ -62,7 +62,7 @@ const Telecallers = () => {
 
   const add = async (data) => {
     console.log(data);
-    setopentools(!opentools)
+    setopentools(!opentools);
     if (data === "admin") {
       setispopupopen(true);
       settype("admin");
@@ -85,15 +85,23 @@ const Telecallers = () => {
     setselectedtelecaller(null);
   };
 
-  const filteredTelecallers = telecallerdata.filter(telecaller => 
-    telecaller.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (telecaller.number && telecaller.number.toString().includes(searchQuery)) ||
-    (telecaller.email && telecaller.email.toLowerCase().includes(searchQuery))
+  const filteredTelecallers = telecallerdata.filter(
+    (telecaller) =>
+      telecaller.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (telecaller.number &&
+        telecaller.number.toString().includes(searchQuery)) ||
+      (telecaller.email && telecaller.email.toLowerCase().includes(searchQuery))
   );
+
+  const canCreateMoreTelecallers = telecallerdata.length >= 6;
 
   if (loading1) {
     return (
-      <div className={`flex h-screen ${isDarkTheme ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div
+        className={`flex h-screen ${
+          isDarkTheme ? "bg-gray-900" : "bg-gray-100"
+        }`}
+      >
         <div className="lg:w-[250px] w-0">
           <Sidebar />
         </div>
@@ -103,23 +111,44 @@ const Telecallers = () => {
       </div>
     );
   }
-  
+
   return (
-    <div className={`flex h-screen ${isDarkTheme ? 'bg-gray-900' : 'bg-gray-100'}`}>
+    <div
+      className={`flex h-screen ${isDarkTheme ? "bg-gray-900" : "bg-gray-100"}`}
+    >
       <div className="lg:w-[250px] w-0">
         <Sidebar />
       </div>
       <div className="flex-grow p-4 md:p-6 overflow-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className={`text-3xl ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Telecallers</h1>
+          <h1
+            className={`text-3xl ${
+              isDarkTheme ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Telecallers
+          </h1>
           <button
             className="hidden sm:block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg ml-auto"
             onClick={() => setispopupopen(true)}
+            disabled={!canCreateMoreTelecallers}
+            style={{
+              opacity: canCreateMoreTelecallers ? 1 : 0.5,
+              cursor: canCreateMoreTelecallers ? "pointer" : "not-allowed",
+            }}
           >
             Add Telecallers
           </button>
+          {!canCreateMoreTelecallers && (
+            <span className="ml-4 text-red-500 font-medium">
+              You can create more telecallers only if there are already 6 or
+              more.
+            </span>
+          )}
           <div
-            className={`lg:hidden ${isDarkTheme ? 'text-white' : 'text-gray-900'} ml-auto mr-3 cursor-pointer`}
+            className={`lg:hidden ${
+              isDarkTheme ? "text-white" : "text-gray-900"
+            } ml-auto mr-3 cursor-pointer`}
             onClick={openmodel}
           >
             <i className="fa fa-bars"></i>
@@ -131,12 +160,16 @@ const Telecallers = () => {
 
         <div className="flex mb-6">
           <div className="p-2 relative w-full max-w-[300px] md:max-w-[500px] md:ml-0">
-            <i className={`fa fa-search text-2xl ${isDarkTheme ? 'text-white' : 'text-gray-600'} absolute left-4 top-1/2 transform -translate-y-1/2`}></i>
+            <i
+              className={`fa fa-search text-2xl ${
+                isDarkTheme ? "text-white" : "text-gray-600"
+              } absolute left-4 top-1/2 transform -translate-y-1/2`}
+            ></i>
             <input
               className={`p-2 pl-12 rounded-xl w-full ${
-                isDarkTheme 
-                  ? 'bg-gray-700 text-white' 
-                  : 'bg-white text-gray-900 border border-gray-300'
+                isDarkTheme
+                  ? "bg-gray-700 text-white"
+                  : "bg-white text-gray-900 border border-gray-300"
               }`}
               placeholder="Search here..."
               value={searchQuery}
@@ -150,10 +183,16 @@ const Telecallers = () => {
             filteredTelecallers.map((telecaller, index) => (
               <div
                 key={index}
-                className={`${isDarkTheme ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-lg p-4 flex flex-col`}
+                className={`${
+                  isDarkTheme ? "bg-gray-800" : "bg-white"
+                } rounded-2xl shadow-lg p-4 flex flex-col`}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className={`text-xl font-semibold ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
+                  <h2
+                    className={`text-xl font-semibold ${
+                      isDarkTheme ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     {telecaller.username}
                   </h2>
                   <div className="px-2 py-1 bg-green-500 text-sm text-white rounded-lg">
@@ -162,17 +201,31 @@ const Telecallers = () => {
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  <div className={`flex items-center ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div
+                    className={`flex items-center ${
+                      isDarkTheme ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     <i className="fa fa-map-marker-alt text-blue-400 text-lg mr-2"></i>
                     <p className="truncate max-w-[250px]">
-                      {telecaller.address ? telecaller.address : "No address available"}
+                      {telecaller.address
+                        ? telecaller.address
+                        : "No address available"}
                     </p>
                   </div>
-                  <div className={`flex items-center ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div
+                    className={`flex items-center ${
+                      isDarkTheme ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     <i className="fa fa-phone-alt text-blue-400 text-lg mr-2"></i>
                     <p>+{telecaller.number}</p>
                   </div>
-                  <div className={`flex items-center ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div
+                    className={`flex items-center ${
+                      isDarkTheme ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     <i className="fa fa-envelope text-blue-400 text-lg mr-2"></i>
                     <p>{telecaller.email}</p>
                   </div>
@@ -194,7 +247,11 @@ const Telecallers = () => {
               </div>
             ))
           ) : (
-            <div className={`col-span-1 sm:col-span-2 lg:col-span-4 text-center ${isDarkTheme ? 'text-white' : 'text-gray-900'} text-xl p-6`}>
+            <div
+              className={`col-span-1 sm:col-span-2 lg:col-span-4 text-center ${
+                isDarkTheme ? "text-white" : "text-gray-900"
+              } text-xl p-6`}
+            >
               No telecallers available.
             </div>
           )}
@@ -202,24 +259,53 @@ const Telecallers = () => {
 
         {selectedtelecaller && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className={`${isDarkTheme ? 'bg-gray-800' : 'bg-white'} p-8 rounded-2xl w-[60%] max-w-3xl shadow-lg`}>
-              <h2 className={`text-3xl font-semibold ${isDarkTheme ? 'text-white' : 'text-gray-800'} mb-4`}>
+            <div
+              className={`${
+                isDarkTheme ? "bg-gray-800" : "bg-white"
+              } p-8 rounded-2xl w-[60%] max-w-3xl shadow-lg`}
+            >
+              <h2
+                className={`text-3xl font-semibold ${
+                  isDarkTheme ? "text-white" : "text-gray-800"
+                } mb-4`}
+              >
                 {selectedtelecaller.username}
               </h2>
               <div className="space-y-4">
-                <p className={`text-lg ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p
+                  className={`text-lg ${
+                    isDarkTheme ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   <strong>Email:</strong> {selectedtelecaller.email}
                 </p>
-                <p className={`text-lg ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p
+                  className={`text-lg ${
+                    isDarkTheme ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   <strong>Phone:</strong> +{selectedtelecaller.number}
                 </p>
-                <p className={`text-lg ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <strong>Address:</strong> {selectedtelecaller.address || "No address available"}
+                <p
+                  className={`text-lg ${
+                    isDarkTheme ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
+                  <strong>Address:</strong>{" "}
+                  {selectedtelecaller.address || "No address available"}
                 </p>
-                <p className={`text-lg ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p
+                  className={`text-lg ${
+                    isDarkTheme ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   <strong>Status:</strong> {selectedtelecaller.status}
                 </p>
-                <p className={`text-lg ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                <p
+                  className={`text-lg ${
+                    isDarkTheme ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   <strong>Role:</strong> {selectedtelecaller.role}
                 </p>
               </div>
@@ -237,36 +323,73 @@ const Telecallers = () => {
 
         {assignedleadmodel && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className={`${isDarkTheme ? 'bg-gray-800' : 'bg-white'} p-8 rounded-2xl w-[60%] max-w-3xl shadow-lg h-[60%] overflow-y-auto relative scrollbar-none`}>
+            <div
+              className={`${
+                isDarkTheme ? "bg-gray-800" : "bg-white"
+              } p-8 rounded-2xl w-[60%] max-w-3xl shadow-lg h-[60%] overflow-y-auto relative scrollbar-none`}
+            >
               <div className="absolute top-4 right-4 cursor-pointer">
                 <i
-                  className={`fa fa-close text-2xl ${isDarkTheme ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black'}`}
+                  className={`fa fa-close text-2xl ${
+                    isDarkTheme
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-600 hover:text-black"
+                  }`}
                   onClick={() => setassignedleadmodel(false)}
                 ></i>
               </div>
 
-              <div className={`text-2xl text-center font-bold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
+              <div
+                className={`text-2xl text-center font-bold mb-4 ${
+                  isDarkTheme ? "text-white" : "text-gray-900"
+                }`}
+              >
                 Leads Assigned
               </div>
 
               <ul className="space-y-3">
                 {leads.length > 0 ? (
                   leads.map((lead, index) => (
-                    <li key={index} className={`p-3 ${isDarkTheme ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg`}>
-                      <p className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-900'}`}>
+                    <li
+                      key={index}
+                      className={`p-3 ${
+                        isDarkTheme ? "bg-gray-700" : "bg-gray-100"
+                      } rounded-lg`}
+                    >
+                      <p
+                        className={`text-lg ${
+                          isDarkTheme ? "text-gray-200" : "text-gray-900"
+                        }`}
+                      >
                         <strong>Name:</strong> {lead.name}
                       </p>
-                      <p className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-900'}`}>
+                      <p
+                        className={`text-lg ${
+                          isDarkTheme ? "text-gray-200" : "text-gray-900"
+                        }`}
+                      >
                         <strong>Mobile:</strong> {lead.mobilenumber}
                       </p>
-                      <p className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-900'}`}>
+                      <p
+                        className={`text-lg ${
+                          isDarkTheme ? "text-gray-200" : "text-gray-900"
+                        }`}
+                      >
                         <strong>Status:</strong> {lead.status}
                       </p>
                     </li>
                   ))
                 ) : (
-                  <li className={`p-3 ${isDarkTheme ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg`}>
-                    <p className={`text-lg text-center ${isDarkTheme ? 'text-gray-200' : 'text-gray-900'}`}>
+                  <li
+                    className={`p-3 ${
+                      isDarkTheme ? "bg-gray-700" : "bg-gray-100"
+                    } rounded-lg`}
+                  >
+                    <p
+                      className={`text-lg text-center ${
+                        isDarkTheme ? "text-gray-200" : "text-gray-900"
+                      }`}
+                    >
                       No leads Assigned
                     </p>
                   </li>
@@ -285,6 +408,6 @@ const Telecallers = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Telecallers;

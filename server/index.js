@@ -16,9 +16,14 @@ const app = express();
 const fileUpload = require("express-fileupload");
 
 app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
-app.use(fileUpload()); // Handle file uploads
+app.use(
+  cors({
+    origin: "https://lead-management-s-5s9p.vercel.app",
+    credentials: true,
+  })
+);
+app.use(express.urlencoded({ extended: true })); 
+app.use(fileUpload()); 
 app.use((req, res, next) => {
   const { database } = req.headers;
   if (!database) {
@@ -44,10 +49,9 @@ app.use("/api/twillio", twilliorouter);
 
 require("./cronjob/callbackscheduled");
 require("./cronjob/dailyreport");
-app.listen(8000, "0.0.0.0", () => {
+app.listen(8000, () => {
   console.log("Server running on port 8000");
 });
-
 
 // const express = require('express');
 // const twilio = require('twilio');
