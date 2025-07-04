@@ -93,7 +93,7 @@ const Telecallers = () => {
       (telecaller.email && telecaller.email.toLowerCase().includes(searchQuery))
   );
 
-  const canCreateMoreTelecallers = telecallerdata.length >= 6;
+  const canCreateMoreTelecallers = telecallerdata.length < 6;
 
   if (loading1) {
     return (
@@ -141,8 +141,7 @@ const Telecallers = () => {
           </button>
           {!canCreateMoreTelecallers && (
             <span className="ml-4 text-red-500 font-medium">
-              You can create more telecallers only if there are already 6 or
-              more.
+              Maximum limit of 6 telecallers reached. Cannot create more.
             </span>
           )}
           <div
