@@ -40,6 +40,7 @@ const Leads = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/getallleads`, {
         headers: { "database": databaseName }
       });
+      console.log("Leads fetched successfully:", response);
       settelecallerdata(response.data.allleads);
       return response.data.allleads;
     } catch (error) {
