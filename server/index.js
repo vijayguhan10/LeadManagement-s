@@ -18,7 +18,7 @@ const fileUpload = require("express-fileupload");
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://lead-management-s-5s9p.vercel.app",
+    origin: ["https://lead-management-s-5s9p.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );
